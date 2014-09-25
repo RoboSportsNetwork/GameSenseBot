@@ -21,9 +21,23 @@ namespace GameSenseBot
         public TBATeam getTeam(string teamKey)
         {
             string url = tbaBaseUrl + "/team/" + teamKey;
-            string json = getTbaJsonString(url);
-            TBATeam team = JsonConvert.DeserializeObject<TBATeam>(json);
-            return team;
+            try
+            {
+                string json = getTbaJsonString(url);
+                TBATeam team = JsonConvert.DeserializeObject<TBATeam>(json);
+                return team;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "The remote server returned an error: (404) Not Found.")
+                {
+                    throw new Exception("Team does not exist in TBA's database.");
+                }
+                else
+                {
+                    throw new Exception("An unknown error occurred");
+                }
+            }
         }       
 
         /// <summary>
@@ -101,6 +115,18 @@ namespace GameSenseBot
             return matches;
         }
 
+        /// <summary>
+        /// Gets a specified event
+        /// </summary>
+        /// <param name="eventKey">The TBA event key for the event.</param>
+        /// <returns>The requested TBAEvent.</returns>
+        public TBAEvent getEvent(string eventKey)
+        {
+            string url = tbaBaseUrl + "/event/" + eventKey;
+            string json = getTbaJsonString(url);
+
+            return JsonConvert.DeserializeObject<TBAEvent>(json);
+        }
 
 
         /// <summary>
@@ -114,6 +140,7 @@ namespace GameSenseBot
             request.Credentials = CredentialCache.DefaultCredentials;
             //Add the necessary security headers.
             request.Headers.Add("X-TBA-App-Id", "gamesense:gamesensebot:v01");
+            
             WebResponse response = request.GetResponse();
             Stream dataStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(dataStream);

@@ -150,9 +150,16 @@ namespace GameSenseBot
                 {
                     if (isNum(messageArray[1]))
                     {
-                        //blindly add the requested number to the end of the TBA team url.
-                        //TODO: check to see if it's an actual team to prevent linking to inexistant pages.
-                        SendChannelMessage("Here's FIRST Team " + messageArray[1] + "'s page on TBA: www.thebluealliance.com/team/" + messageArray[1]);
+                        string teamNum = messageArray[1];
+                        try
+                        {
+                            TBATeam team = tba.getTeam("frc" + teamNum);
+                            SendChannelMessage("Here's FIRST Team " + team.team_number + "'s page on TBA: www.thebluealliance.com/team/" + team.team_number);
+                        }
+                        catch (Exception exc)
+                        {
+                            SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                        }
                     }
                 }
                 else if (messageArray[0] == messageCommands.Help.Command)
@@ -173,8 +180,15 @@ namespace GameSenseBot
                     //Get the team from TBA and return its name.
                     if (isNum(messageArray[1]))
                     {
-                        TBATeam team = tba.getTeam("frc" + messageArray[1]);
-                        SendChannelMessage("FIRST Team " + messageArray[1] + "'s nickname is: " + team.nickname);
+                        try
+                        {
+                            TBATeam team = tba.getTeam("frc" + messageArray[1]);
+                            SendChannelMessage("FIRST Team " + messageArray[1] + "'s nickname is: " + team.nickname);
+                        }
+                        catch (Exception exc)
+                        {
+                            SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                        }
                     }
                 }
                 else if (messageArray[0] == messageCommands.TeamRecord.Command)
@@ -194,22 +208,61 @@ namespace GameSenseBot
                             if (isNum(messageArray[2]))
                             {
                                 year = messageArray[2];
-                                matches = tba.getAllTeamMatches("frc" + team, year);
-                                SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " in " + year + ".");
+                                try
+                                {
+                                    matches = tba.getAllTeamMatches("frc" + team, year);
+                                    if (matches.Count == 0)
+                                    {
+                                        SendChannelMessage(team + " did not play in any matches in " + year + ".");
+                                    }
+                                    else
+                                    {
+                                        SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " in " + year + ".");
+                                    }
+                                }
+                                catch (Exception exc)
+                                {
+                                    SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                }
                             }
                             //handle a request for a specific event.
                             else
                             {
                                 eventKey = messageArray[2];
-                                matches = tba.getTeamEventMatches("frc" + team, eventKey);
-                                SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " at " + eventKey + ".");
+                                string eventName = tba.getEvent(eventKey).short_name;
+                                try
+                                {
+                                    matches = tba.getTeamEventMatches("frc" + team, eventKey);
+
+                                    if (matches.Count == 0)
+                                    {
+                                        SendChannelMessage(team + " did not play in any matches at " + eventName + ".");
+                                    }
+                                    else
+                                    {
+                                        SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " at " + eventName + ".");
+                                    }
+
+                                }
+                                catch (Exception exc)
+                                {
+                                    SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                }
                             }
                         }
                         //handle a request for all matches this year.
                         else
                         {
-                            matches = tba.getAllTeamMatches("frc" + team);
-                            SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " this year.");
+                            try
+                            {
+                                matches = tba.getAllTeamMatches("frc" + team);
+                                SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " this year.");
+                            }
+                            catch (Exception exc)
+                            {
+                                SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                
+                            }
                         }
                     }
                 }
@@ -226,12 +279,28 @@ namespace GameSenseBot
                             year = messageArray[2];
                             if (isNum(year))
                             {
-                                events = tba.getTeamEvents("frc" + team, year);
+                                try
+                                {
+                                    events = tba.getTeamEvents("frc" + team, year);
+                                }
+                                catch (Exception exc)
+                                {
+                                    SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                    return;
+                                }
                             }
                         }
                         else
                         {
-                            events = tba.getTeamEvents("frc" + team);
+                            try
+                            {
+                                events = tba.getTeamEvents("frc" + team);
+                            }
+                            catch (Exception exc)
+                            {
+                                SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                return;
+                            }
                         }
 
                         StringBuilder sb = new StringBuilder();
@@ -257,6 +326,12 @@ namespace GameSenseBot
             }
         }
 
+        private void SendErrorMessage(string error, string badCommand, string nick)
+        {
+            SendChannelMessage(nick + ", there was an error processing \"" + badCommand + "\": " + error);
+            return;
+        }
+
         /// <summary>
         /// Adds a question to the questions list.
         /// </summary>
@@ -269,15 +344,30 @@ namespace GameSenseBot
             {
                 if (!str.StartsWith("!"))
                 {
-                    sb.Append(str + " ");
+                    if (str != messageArray.Last())
+                    {
+                        sb.Append(str + " ");
+                    }
+                    else
+                    {
+                        sb.Append(str);
+                    }
                 }
+                
             }
 
             string parsed = sb.ToString();
 
-            string[] question = { parsed.Substring(0,parsed.Length-1), nick };
+            string[] question = { parsed, nick };
             questions.Add(question);
-            SendChannelMessage("Thanks, " + nick + ". Your question has been added to the queue!");
+            try
+            {
+                SendChannelMessage("Thanks, " + nick + ". I've added question #" + questions.Count + " to the queue.");
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+            }
         }
 
         /// <summary>

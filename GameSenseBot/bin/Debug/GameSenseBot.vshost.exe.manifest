@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="GameSenseBot.exe" size="29184">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="GameSenseBot.exe" size="31232">
       <assemblyIdentity name="GameSenseBot" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Ev2dYogA1LzgHlXklluMiCw/YxTJvKtDms1G5s1UF3I=</dsig:DigestValue>
+        <dsig:DigestValue>nJYG9dnAlFKyE9lo/WrKQ2xFzkUEB9R0AwfJEZ3Aofc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
