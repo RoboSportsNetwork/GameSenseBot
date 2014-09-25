@@ -10,7 +10,7 @@ namespace GameSenseBot
     {
         public string key { get; set; }
         public string website { get; set; }
-        public bool official { get; set; }
+        public bool? official { get; set; }
         public string end_date { get; set; }
         public string name { get; set; }
         public string short_name { get; set; }
@@ -20,11 +20,11 @@ namespace GameSenseBot
         public int? event_district { get; set; }
         public string location { get; set; }
         public string event_code { get; set; }
-        public int year { get; set; }
+        public int? year { get; set; }
         public List<TBAWebcast> webcast { get; set; }
         public List<TBAEventAlliance> alliances { get; set; }
         public string event_type_string { get; set; }
         public string start_date { get; set; }
-        public int event_type { get; set; }
+        public int? event_type { get; set; }
     }
 }

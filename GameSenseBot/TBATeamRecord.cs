@@ -8,9 +8,9 @@ namespace GameSenseBot
 {
     class TBATeamRecord
     {
-        public int wins;
-        public int losses;
-        public int ties;
+        public int? wins;
+        public int? losses;
+        public int? ties;
 
         public TBATeamRecord()
         {

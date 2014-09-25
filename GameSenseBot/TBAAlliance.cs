@@ -8,7 +8,7 @@ namespace GameSenseBot
 {
     class TBAAlliance
     {
-        public int score { get; set; }
+        public int? score { get; set; }
         public List<string> teams { get; set; }
     }
 }
