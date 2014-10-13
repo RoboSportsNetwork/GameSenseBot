@@ -20,6 +20,7 @@ namespace GameSenseBot
         private GSBotTbaCommunicator tba = new GSBotTbaCommunicator();
         public static Thread twitchThread;
         private string status;
+        public bool acceptringQuestions;
 
         public string Status
         {
@@ -51,7 +52,9 @@ namespace GameSenseBot
 
             irc.AutoRetry = true;
             irc.AutoRetryDelay = 10;
-            irc.AutoReconnect = true;            
+            irc.AutoReconnect = true;
+
+            this.acceptringQuestions = Properties.Settings.Default.acceptingQuestions;
         }
 
         public void Connect()
@@ -141,10 +144,21 @@ namespace GameSenseBot
                 }
 
                 //check to see if the first item in the array matches one of a predefined set of commands
+                
                 if (messageArray[0] == messageCommands.Question.Command || messageArray[0] == messageCommands.QuestionShort.Command)
                 {
-                    //if its a question, add the question to the questions list.
-                    parseAndAddQuestion(messageArray, e.Data.Nick);
+                    if (this.acceptringQuestions)
+                    {
+                        //if its a question, add the question to the questions list.
+                        parseAndAddQuestion(messageArray, e.Data.Nick);
+                    }
+                    else
+                    {
+                        if (Properties.Settings.Default.sendApology)
+                        {
+                            SendChannelMessage("Sorry, " + e.Data.Nick + ". This channel is not accepting questions at this time.");
+                        }
+                    }
                 }
                 else if (messageArray[0] == messageCommands.Tba.Command)
                 {
@@ -198,7 +212,7 @@ namespace GameSenseBot
                     string eventKey = null;
                     string year = null;
                     List<TBAMatch> matches;
-                    
+
                     if (isNum(team))
                     {
                         //if they provided an event or year, handle that
@@ -261,7 +275,7 @@ namespace GameSenseBot
                             catch (Exception exc)
                             {
                                 SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
-                                
+
                             }
                         }
                     }

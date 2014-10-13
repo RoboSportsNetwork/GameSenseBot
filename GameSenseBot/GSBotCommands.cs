@@ -16,17 +16,26 @@ namespace GameSenseBot
         public GSBotCommand TeamEvents = new GSBotCommand("!events", "Type a team number after this to get a list of events that team is registered for this year.");
         public GSBotCommand Help = new GSBotCommand("!help", "Use this to list all understandable commands");
 
-        public List<GSBotCommand> CommandsList;
+        public List<GSBotCommand> CommandsList{
+            get{
+                List<GSBotCommand> list = new List<GSBotCommand>();
+                if (Properties.Settings.Default.acceptingQuestions)
+                {
+                    list.Add(Question);
+                    list.Add(QuestionShort);
+                }
+                list.Add(Tba);
+                list.Add(TeamName);
+                list.Add(TeamRecord);
+                list.Add(Help);
+
+                return list;
+            }
+        }
 
         public GSBotCommands()
         {
-            CommandsList = new List<GSBotCommand>();
-            CommandsList.Add(Question);
-            CommandsList.Add(QuestionShort);
-            CommandsList.Add(Tba);
-            CommandsList.Add(TeamName);
-            CommandsList.Add(TeamRecord);
-            CommandsList.Add(Help);
-        }        
+        }
+            
     }
 }
