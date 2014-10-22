@@ -147,33 +147,47 @@ namespace GameSenseBot
                 
                 if (messageArray[0] == messageCommands.Question.Command || messageArray[0] == messageCommands.QuestionShort.Command)
                 {
-                    if (this.acceptringQuestions)
+                    try
                     {
-                        //if its a question, add the question to the questions list.
-                        parseAndAddQuestion(messageArray, e.Data.Nick);
-                    }
-                    else
-                    {
-                        if (Properties.Settings.Default.sendApology)
+                        if (this.acceptringQuestions)
                         {
-                            SendChannelMessage("Sorry, " + e.Data.Nick + ". This channel is not accepting questions at this time.");
+                            //if its a question, add the question to the questions list.
+                            parseAndAddQuestion(messageArray, e.Data.Nick);
                         }
+                        else
+                        {
+                            if (Properties.Settings.Default.sendApology)
+                            {
+                                SendChannelMessage("Sorry, " + e.Data.Nick + ". This channel is not accepting questions at this time.");
+                            }
+                        }
+                    }
+                    catch(Exception)
+                    {
+                        SendErrorMessage("Error Processing Question", rawMessage, e.Data.Nick);
                     }
                 }
                 else if (messageArray[0] == messageCommands.Tba.Command)
                 {
-                    if (isNum(messageArray[1]))
+                    try
                     {
-                        string teamNum = messageArray[1];
-                        try
+                        if (isNum(messageArray[1]))
                         {
-                            TBATeam team = tba.getTeam("frc" + teamNum);
-                            SendChannelMessage("Here's FIRST Team " + team.team_number + "'s page on TBA: www.thebluealliance.com/team/" + team.team_number);
+                            string teamNum = messageArray[1];
+                            try
+                            {
+                                TBATeam team = tba.getTeam("frc" + teamNum);
+                                SendChannelMessage("Here's FIRST Team " + team.team_number + "'s page on TBA: www.thebluealliance.com/team/" + team.team_number);
+                            }
+                            catch (Exception exc)
+                            {
+                                SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                            }
                         }
-                        catch (Exception exc)
-                        {
-                            SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
-                        }
+                    }
+                    catch (Exception)
+                    {
+                        SendErrorMessage("Error Processing Team Number", rawMessage, e.Data.Nick);
                     }
                 }
                 else if (messageArray[0] == messageCommands.Help.Command)
@@ -191,94 +205,107 @@ namespace GameSenseBot
                 }
                 else if (messageArray[0] == messageCommands.TeamName.Command)
                 {
-                    //Get the team from TBA and return its name.
-                    if (isNum(messageArray[1]))
-                    {
-                        try
-                        {
-                            TBATeam team = tba.getTeam("frc" + messageArray[1]);
-                            SendChannelMessage("FIRST Team " + messageArray[1] + "'s nickname is: " + team.nickname);
-                        }
-                        catch (Exception exc)
-                        {
-                            SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
-                        }
-                    }
-                }
-                else if (messageArray[0] == messageCommands.TeamRecord.Command)
-                {
-
-                    string team = messageArray[1];
-                    string eventKey = null;
-                    string year = null;
-                    List<TBAMatch> matches;
-
-                    if (isNum(team))
-                    {
-                        //if they provided an event or year, handle that
-                        if (messageArray.Count() > 2)
-                        {
-                            //handle a request for a full record of a specific year
-                            if (isNum(messageArray[2]))
-                            {
-                                year = messageArray[2];
-                                try
-                                {
-                                    matches = tba.getAllTeamMatches("frc" + team, year);
-                                    if (matches.Count == 0)
-                                    {
-                                        SendChannelMessage(team + " did not play in any matches in " + year + ".");
-                                    }
-                                    else
-                                    {
-                                        SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " in " + year + ".");
-                                    }
-                                }
-                                catch (Exception exc)
-                                {
-                                    SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
-                                }
-                            }
-                            //handle a request for a specific event.
-                            else
-                            {
-                                eventKey = messageArray[2];
-                                string eventName = tba.getEvent(eventKey).short_name;
-                                try
-                                {
-                                    matches = tba.getTeamEventMatches("frc" + team, eventKey);
-
-                                    if (matches.Count == 0)
-                                    {
-                                        SendChannelMessage(team + " did not play in any matches at " + eventName + ".");
-                                    }
-                                    else
-                                    {
-                                        SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " at " + eventName + ".");
-                                    }
-
-                                }
-                                catch (Exception exc)
-                                {
-                                    SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
-                                }
-                            }
-                        }
-                        //handle a request for all matches this year.
-                        else
+                   try{
+                        //Get the team from TBA and return its name.
+                        if (isNum(messageArray[1]))
                         {
                             try
                             {
-                                matches = tba.getAllTeamMatches("frc" + team);
-                                SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " this year.");
+                                TBATeam team = tba.getTeam("frc" + messageArray[1]);
+                                SendChannelMessage("FIRST Team " + messageArray[1] + "'s nickname is: " + team.nickname);
                             }
                             catch (Exception exc)
                             {
                                 SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
-
                             }
                         }
                     }
+                    catch(Exception)
+                    {
+                        SendErrorMessage("Error Processing Team Number", rawMessage, e.Data.Nick);
+                    }
+                }
+                else if (messageArray[0] == messageCommands.TeamRecord.Command)
+                {
+                    try
+                    {
+                        string team = messageArray[1];
+                        string eventKey = null;
+                        string year = null;
+                        List<TBAMatch> matches;
+
+                        if (isNum(team))
+                        {
+                            //if they provided an event or year, handle that
+                            if (messageArray.Count() > 2)
+                            {
+                                //handle a request for a full record of a specific year
+                                if (isNum(messageArray[2]))
+                                {
+                                    year = messageArray[2];
+                                    try
+                                    {
+                                        matches = tba.getAllTeamMatches("frc" + team, year);
+                                        if (matches.Count == 0)
+                                        {
+                                            SendChannelMessage(team + " did not play in any matches in " + year + ".");
+                                        }
+                                        else
+                                        {
+                                            SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " in " + year + ".");
+                                        }
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                    }
+                                }
+                                //handle a request for a specific event.
+                                else
+                                {
+                                    eventKey = messageArray[2];
+                                    string eventName = tba.getEvent(eventKey).short_name;
+                                    try
+                                    {
+                                        matches = tba.getTeamEventMatches("frc" + team, eventKey);
+
+                                        if (matches.Count == 0)
+                                        {
+                                            SendChannelMessage(team + " did not play in any matches at " + eventName + ".");
+                                        }
+                                        else
+                                        {
+                                            SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " at " + eventName + ".");
+                                        }
+
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+                                    }
+                                }
+                            }
+                            //handle a request for all matches this year.
+                            else
+                            {
+                                try
+                                {
+                                    matches = tba.getAllTeamMatches("frc" + team);
+                                    SendChannelMessage(team + " was " + tba.getTeamRecordAtEvent("frc" + team, matches) + " this year.");
+                                }
+                                catch (Exception exc)
+                                {
+                                    SendErrorMessage(exc.Message, e.Data.Message, e.Data.Nick);
+
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        SendErrorMessage("Error Processing Team Number.", rawMessage, e.Data.Nick);
+                    }
+                    
                 }
                 else if (messageArray[0] == messageCommands.TeamEvents.Command)
                 {
