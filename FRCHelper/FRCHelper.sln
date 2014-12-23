@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRCHelper", "FRCHelper.csproj", "{F9A96046-C2B2-4464-B76E-09E9B6B8933F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9A96046-C2B2-4464-B76E-09E9B6B8933F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9A96046-C2B2-4464-B76E-09E9B6B8933F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9A96046-C2B2-4464-B76E-09E9B6B8933F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9A96046-C2B2-4464-B76E-09E9B6B8933F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
